@@ -12,8 +12,6 @@ const Inicio = () => {
       <div className="botones-inicio">
         <button onClick={() => navigate('/empresas')} className="boton-inicio">Empresas</button>
         <button onClick={() => navigate('/alumnos')} className="boton-inicio">Alumnos</button>
-        <button onClick={() => navigate('/pasantias')} className="boton-inicio">Pasantías</button>
-        <button onClick={() => navigate('/informes')} className="boton-inicio">Informes</button>
       </div>
     </div>
   );
