@@ -1,40 +1,35 @@
-// src/App.jsx
-import { useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import Inicio from './pages/Inicio';
+import Alumnos from './pages/Alumnos';
+import Empresas from './pages/Empresas';
+import Pasantias from './pages/Pasantias'; 
+import Informes from './pages/Informes';   
 
-import Navbar from "./components/Navbar";
-import Inicio from "./pages/Inicio";
-import Alumnos from "./pages/Alumnos";
-import Empresas from "./pages/Empresas";
-import Login from "./pages/Login";
-
-// Importa los proveedores de contexto
-import { EmpresaProvider } from "./context/EmpresaContext";
-import { AlumnoProvider } from "./context/AlumnoContext";
-
-function App() {
-  const [autenticado, setAutenticado] = useState(false);
-
+const App = () => {
   return (
-    <>
-      {!autenticado ? (
-        <Login onLoginSuccess={() => setAutenticado(true)} />
-      ) : (
-        <>
-          <Navbar />
-          <EmpresaProvider>
-            <AlumnoProvider>
-              <Routes>
-                <Route path="/" element={<Inicio />} />
-                <Route path="/alumnos" element={<Alumnos />} />
-                <Route path="/empresas" element={<Empresas />} />
-              </Routes>
-            </AlumnoProvider>
-          </EmpresaProvider>
-        </>
-      )}
-    </>
+    <Router>
+      <div>
+        <nav>
+          <ul>
+            <li><Link to="/">Inicio</Link></li>
+            <li><Link to="/alumnos">Alumnos</Link></li>
+            <li><Link to="/empresas">Empresas</Link></li>
+            <li><Link to="/pasantias">Pasantías</Link></li> 
+            <li><Link to="/informes">Informe</Link></li> 
+          </ul>
+        </nav>
+
+        <Routes>
+          <Route path="/" element={<Inicio />} />
+          <Route path="/alumnos" element={<Alumnos />} />
+          <Route path="/empresas" element={<Empresas />} />
+          <Route path="/pasantias" element={<Pasantias />} />
+          <Route path="/informes" element={<Informes />} />
+        </Routes>
+      </div>
+    </Router>
   );
-}
+};
 
 export default App;
