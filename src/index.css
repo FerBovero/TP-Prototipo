@@ -249,3 +249,29 @@ textarea {
     font-size: 0.9rem;
   }
 }
+
+.form-login {
+  text-align: left;
+}
+
+.form-login label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.3rem;
+}
+
+.form-login {
+  text-align: left;
+}
+
+.form-login label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.3rem;
+}
+
+.form-login button {
+  display: block;
+  margin: 1rem auto; /* Centra horizontalmente */
+}
+

@@ -1,37 +1,27 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Usamos useNavigate para redirigir
+import { useNavigate } from 'react-router-dom';
 
 const Login = ({ onLoginSuccess }) => {
   const [email, setEmail] = useState('');
   const [contrasena, setContrasena] = useState('');
-  const [error, setError] = useState(''); // Estado para mostrar errores
-  const navigate = useNavigate(); // Usamos useNavigate para redirigir
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  // Expresión regular para validar el correo electrónico
-  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-  // Manejo del inicio de sesión
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Validación del correo
-    if (!emailRegex.test(email)) {
-      setError('Por favor, ingresa un correo electrónico válido.');
-      return;
+    // Usuario y contraseña fijos
+    const adminEmail = 'admin@gmail.com';
+    const adminPassword = 'admin123';
+
+    if (email === adminEmail && contrasena === adminPassword) {
+      // Guardar autenticación en localStorage si querés persistencia
+      localStorage.setItem('autenticado', 'true');
+      onLoginSuccess(); // Activar sesión en App
+      navigate('/');
+    } else {
+      setError('Correo o contraseña incorrectos.');
     }
-
-    // Aquí puedes agregar tu lógica de autenticación real
-    alert(`Inicio de sesión con: ${email}`);
-    onLoginSuccess(); // Llamamos a la función para cambiar el estado en App
-    navigate('/'); // Redirigimos al usuario a la página de inicio después de iniciar sesión
-    setEmail('');
-    setContrasena('');
-    setError(''); // Limpiar errores al enviar el formulario
-  };
-
-  const handleRegister = () => {
-    // Redirigir a la página de registro
-    navigate('/registro'); // O cambia a la ruta que quieras para el registro
   };
 
   return (
@@ -54,16 +44,10 @@ const Login = ({ onLoginSuccess }) => {
           onChange={(e) => setContrasena(e.target.value)}
         />
 
-        {error && <p style={{ color: 'red' }}>{error}</p>} {/* Muestra el error si es necesario */}
+        {error && <p style={{ color: 'red' }}>{error}</p>}
 
         <button type="submit">Ingresar</button>
       </form>
-      
-      {/* Botón de registrarse */}
-      <div className="registrarse">
-        <p>¿No tienes cuenta?</p>
-        <button onClick={handleRegister}>Registrarse</button>
-      </div>
     </div>
   );
 };

@@ -1,0 +1,28 @@
+{
+  "alumnos": [
+    {
+      "legajo": 1001,
+      "nombre_apellido": "Sofia Pérez",
+      "carrera": "Ingeniería Informática",
+      "email": "sofia@email.com",
+      "telefono": 1234567890,
+      "domicilio": "Manuel Belgrano 1234"
+    },
+    {
+      "legajo": 1002,
+      "nombre_apellido": "Lucas Pérez",
+      "carrera": "Contador Público",
+      "email": "lucas@email.com",
+      "telefono": 1234567891,
+      "domicilio": "San Martin 4321"
+    },
+    {
+      "legajo": 1003,
+      "nombre_apellido": "Valentina Gomez",
+      "carrera": "Administración de Empresas",
+      "email": "valentina@email.com",
+      "telefono": 1234567891,
+      "domicilio": "Cornelio Saavedra 2431"
+    }
+  ]
+}
