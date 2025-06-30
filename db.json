@@ -6,7 +6,8 @@
       "carrera": "Ingeniería Informática",
       "email": "sofia@email.com",
       "telefono": 1234567890,
-      "domicilio": "Manuel Belgrano 1234"
+      "domicilio": "Manuel Belgrano 1234",
+      "id": "a3cc"
     },
     {
       "legajo": 1002,
@@ -14,7 +15,8 @@
       "carrera": "Contador Público",
       "email": "lucas@email.com",
       "telefono": 1234567891,
-      "domicilio": "San Martin 4321"
+      "domicilio": "San Martin 4321",
+      "id": "649a"
     },
     {
       "legajo": 1003,
@@ -22,7 +24,57 @@
       "carrera": "Administración de Empresas",
       "email": "valentina@email.com",
       "telefono": 1234567891,
-      "domicilio": "Cornelio Saavedra 2431"
+      "domicilio": "Cornelio Saavedra 2431",
+      "id": "f53e"
+    }
+  ],
+  "empresas": [
+    {
+      "id": 1,
+      "nombre": "Tech S.A.",
+      "cuit": "20304050607",
+      "email": "info@techsa.com",
+      "telefono": "123456789",
+      "direccion": "Av. Siempre Viva 742",
+      "puesto": {
+        "nombrePuesto": "Desarrollador Frontend",
+        "duracionMeses": "6",
+        "horasSemanales": "20",
+        "horasDiarias": "4",
+        "estimulo": "60000",
+        "obraSocial": true,
+        "art": true
+      }
+    }
+  ],
+  "pasantias": [
+    {},
+    {
+      "id": "0e06",
+      "empresa": "Tech S.A.",
+      "alumno": "Sofia Pérez",
+      "puesto": "Desarrollador Frontend",
+      "fechaInicio": "2025-07-02",
+      "fechaFin": "2026-01-02",
+      "estado": "finalizada"
+    },
+    {
+      "id": "309b",
+      "empresa": "Tech S.A.",
+      "alumno": "Valentina Gomez",
+      "puesto": "Desarrollador Frontend",
+      "fechaInicio": "2025-07-05",
+      "fechaFin": "2026-01-05",
+      "estado": "cancelada"
+    },
+    {
+      "id": "855c",
+      "empresa": "Tech S.A.",
+      "alumno": "Lucas Pérez",
+      "puesto": "Desarrollador Frontend",
+      "fechaInicio": "2025-07-05",
+      "fechaFin": "2026-01-05",
+      "estado": "cancelada"
     }
   ]
 }

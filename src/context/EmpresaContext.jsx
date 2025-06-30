@@ -1,20 +1,43 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 
-// Creamos el contexto de las empresas
 export const EmpresaContext = createContext();
 
-// Componente Proveedor del Contexto
 export const EmpresaProvider = ({ children }) => {
   const [empresas, setEmpresas] = useState([]);
 
-  // Función para agregar una empresa
+  // Cargar empresas desde json-server al iniciar
+  useEffect(() => {
+    const fetchEmpresas = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/empresas');
+        const data = await response.json();
+        setEmpresas(data);
+      } catch (error) {
+        console.error('Error al cargar empresas:', error);
+      }
+    };
+
+    fetchEmpresas();
+  }, []);
+
+  // Agregar empresa
   const addEmpresa = (empresa) => {
-    setEmpresas([...empresas, empresa]);
+    setEmpresas((prev) => [...prev, empresa]);
   };
 
-  // Función para eliminar una empresa
-  const removeEmpresa = (index) => {
-    setEmpresas(empresas.filter((_, i) => i !== index));
+  // Eliminar empresa por ID
+  const removeEmpresa = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:3001/empresas/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) throw new Error('Error al eliminar empresa');
+
+      setEmpresas((prev) => prev.filter((empresa) => empresa.id !== id));
+    } catch (error) {
+      console.error('Error eliminando empresa:', error);
+    }
   };
 
   return (
@@ -24,7 +47,6 @@ export const EmpresaProvider = ({ children }) => {
   );
 };
 
-// Custom Hook para acceder al contexto
 export const useEmpresaContext = () => {
   return useContext(EmpresaContext);
 };

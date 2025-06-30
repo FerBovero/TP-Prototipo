@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { useEmpresaContext } from '../context/EmpresaContext'; // Importamos el contexto
+import { useEmpresaContext } from '../context/EmpresaContext';
 
 const Empresas = () => {
-  const { empresas, addEmpresa, removeEmpresa } = useEmpresaContext(); // Usamos el contexto
+  const { empresas, addEmpresa, removeEmpresa } = useEmpresaContext();
   const [mostrarModal, setMostrarModal] = useState(false);
+  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
+  const [empresaAEliminar, setEmpresaAEliminar] = useState(null);
   const [error, setError] = useState('');
   const [nuevaEmpresa, setNuevaEmpresa] = useState({
     nombre: '',
@@ -42,11 +44,10 @@ const Empresas = () => {
   };
 
   const validarDatos = () => {
-    const soloTexto = (str) => /^[A-Za-zÁÉÍÓÚÑáéíóúñ\s]+$/.test(str); // Nombre solo texto
-    const soloNumeroPositivo = (str) => /^\d+$/.test(str); // Solo números positivos
-    const emailValido = (str) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str); // Validación de email
-  
-    // Extraemos valores para loguear
+    const soloTexto = (str) => /^[A-Za-zÁÉÍÓÚÑáéíóúñ\s]+$/.test(str);
+    const soloNumeroPositivo = (str) => /^\d+$/.test(str);
+    const emailValido = (str) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str);
+
     const {
       nombre,
       cuit,
@@ -62,19 +63,7 @@ const Empresas = () => {
         art
       }
     } = nuevaEmpresa;
-  
-    console.log("Nombre Empresa:", nombre, "->", soloTexto(nombre));
-    console.log("CUIT:", cuit, "->", soloNumeroPositivo(cuit));
-    console.log("Email:", email, "->", emailValido(email));
-    console.log("Teléfono:", telefono, "->", soloNumeroPositivo(telefono));
-    console.log("Nombre Puesto:", nombrePuesto, "->", soloTexto(nombrePuesto));
-    console.log("Duración Meses:", duracionMeses, "->", soloNumeroPositivo(duracionMeses), duracionMeses >= 2 && duracionMeses <= 12);
-    console.log("Horas Semanales:", horasSemanales, "->", soloNumeroPositivo(horasSemanales), horasSemanales === 20);
-    console.log("Horas Diarias:", horasDiarias, "->", parseFloat(horasDiarias) > 0, parseFloat(horasDiarias) <= 6.5);
-    console.log("Salario:", estimulo, "->", soloNumeroPositivo(estimulo));
-    console.log("Obra Social:", obraSocial);
-    console.log("ART:", art);
-  
+
     return (
       soloTexto(nombre) &&
       soloNumeroPositivo(cuit) &&
@@ -93,18 +82,15 @@ const Empresas = () => {
       art
     );
   };
-  
 
-  
-  const registrarEmpresa = (e) => {
+  const registrarEmpresa = async (e) => {
     e.preventDefault();
     if (!validarDatos()) {
       setError("Por favor, ingrese datos válidos y asegúrese que el puesto cumple los requisitos.");
       return;
     }
 
-    addEmpresa(nuevaEmpresa); // Usamos la función del contexto para agregar la empresa
-    localStorage.setItem('empresas', JSON.stringify([...empresas, nuevaEmpresa]));
+    await addEmpresa(nuevaEmpresa);
     setNuevaEmpresa({
       nombre: '',
       cuit: '',
@@ -125,8 +111,17 @@ const Empresas = () => {
     setError('');
   };
 
-  const eliminarEmpresa = (index) => {
-    removeEmpresa(index); // Usamos la función del contexto para eliminar la empresa
+  const confirmarEliminacion = (empresa) => {
+    setEmpresaAEliminar(empresa);
+    setMostrarConfirmacion(true);
+  };
+
+  const eliminarEmpresaConfirmada = async () => {
+    if (empresaAEliminar) {
+      await removeEmpresa(empresaAEliminar.id);
+    }
+    setMostrarConfirmacion(false);
+    setEmpresaAEliminar(null);
   };
 
   return (
@@ -189,15 +184,27 @@ const Empresas = () => {
         </div>
       )}
 
+      {mostrarConfirmacion && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>¿Está seguro que desea eliminar esta empresa?</h3>
+            <div className="modal-footer">
+              <button onClick={eliminarEmpresaConfirmada}>Sí, eliminar</button>
+              <button onClick={() => setMostrarConfirmacion(false)}>Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="lista-empresas">
-        {empresas.map((empresa, index) => (
-          <div key={index} className="tarjeta-empresa">
-            <img src="https://via.placeholder.com/80" alt="Empresa" />
+        {empresas.map((empresa) => (
+          <div key={empresa.id} className="tarjeta-empresa">
             <div className="info-empresa">
               <h3>{empresa.nombre}</h3>
-              <p>{empresa.puesto.nombrePuesto}</p>
+              <p>CUIT: {empresa.cuit}</p>
+              <p>Puesto: {empresa.puesto?.nombrePuesto || 'Sin puesto'}</p>
             </div>
-            <button onClick={() => eliminarEmpresa(index)}>Eliminar</button>
+            <button onClick={() => confirmarEliminacion(empresa)}>Eliminar</button>
           </div>
         ))}
       </div>

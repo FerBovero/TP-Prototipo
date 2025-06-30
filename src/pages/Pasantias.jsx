@@ -4,8 +4,10 @@ const Pasantias = () => {
   const [empresas, setEmpresas] = useState([]);
   const [alumnos, setAlumnos] = useState([]);
   const [pasantias, setPasantias] = useState([]);
-  const [informes, setInformes] = useState([]);
-  const [modalInforme, setModalInforme] = useState(null);
+  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
+  const [pasantiaAConfirmar, setPasantiaAConfirmar] = useState(null);
+  const [accionConfirmar, setAccionConfirmar] = useState(''); // 'cancelar' o 'finalizar'
+  const [mostrarModal, setMostrarModal] = useState(false);
   const [error, setError] = useState('');
   const [nuevaPasantia, setNuevaPasantia] = useState({
     empresa: '',
@@ -16,14 +18,17 @@ const Pasantias = () => {
   });
 
   useEffect(() => {
-    try {
-      const emp = JSON.parse(localStorage.getItem('empresas')) || [];
-      const alu = JSON.parse(localStorage.getItem('alumnos')) || [];
-      setEmpresas(emp);
-      setAlumnos(alu);
-    } catch (error) {
-      console.error("Error al cargar datos de localStorage:", error);
-    }
+    fetch('http://localhost:3001/empresas')
+      .then(res => res.json())
+      .then(data => setEmpresas(data));
+
+    fetch('http://localhost:3001/alumnos')
+      .then(res => res.json())
+      .then(data => setAlumnos(data));
+
+    fetch('http://localhost:3001/pasantias')
+      .then(res => res.json())
+      .then(data => setPasantias(data));
   }, []);
 
   const handleChange = (e) => {
@@ -38,11 +43,9 @@ const Pasantias = () => {
         const puesto = emp.puesto.nombrePuesto;
         const fechaInicio = nuevaPasantia.fechaInicio ? new Date(nuevaPasantia.fechaInicio) : null;
         const fechaFin = fechaInicio ? new Date(fechaInicio) : null;
-
         if (fechaInicio && fechaFin) {
           fechaFin.setMonth(fechaFin.getMonth() + meses);
         }
-
         setNuevaPasantia(p => ({
           ...p,
           puesto,
@@ -67,107 +70,182 @@ const Pasantias = () => {
     }
   };
 
-  const registrarPasantia = (e) => {
-    e.preventDefault();
-    const { empresa, alumno, puesto, fechaInicio, fechaFin } = nuevaPasantia;
+ const registrarPasantia = async (e) => {
+  e.preventDefault();
+  const { empresa, alumno, puesto, fechaInicio, fechaFin } = nuevaPasantia;
 
-    if (!empresa || !alumno || !puesto || !fechaInicio || !fechaFin) {
-      setError("Todos los campos son obligatorios.");
-      return;
-    }
+  if (!empresa || !alumno || !puesto || !fechaInicio || !fechaFin) {
+    setError("Todos los campos son obligatorios.");
+    return;
+  }
 
-    const fi = new Date(fechaInicio);
-    const ff = new Date(fechaFin);
-    if (fi >= ff) {
-      setError("La fecha de finalización debe ser posterior a la de inicio.");
-      return;
-    }
+  const fi = new Date(fechaInicio);
+  const ff = new Date(fechaFin);
+  if (fi >= ff) {
+    setError("La fecha de finalización debe ser posterior a la de inicio.");
+    return;
+  }
 
-    if (fi < new Date()) {
-      setError("La fecha de inicio no puede ser en el pasado.");
-      return;
-    }
+  if (fi < new Date()) {
+    setError("La fecha de inicio no puede ser en el pasado.");
+    return;
+  }
 
-    const yaExiste = pasantias.some(p =>
-      p.empresa === empresa && p.alumno === alumno &&
-      p.estado === 'activa' && new Date(p.fechaFin) > new Date()
-    );
-    if (yaExiste) {
-      setError("Ya existe una pasantía activa para este alumno en esta empresa.");
-      return;
-    }
+  const nueva = { ...nuevaPasantia, estado: 'activa' };
 
-    setPasantias([...pasantias, { ...nuevaPasantia, estado: 'activa' }]);
+  try {
+    const res = await fetch('http://localhost:3001/pasantias', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(nueva)
+    });
+
+    if (!res.ok) throw new Error('Error al crear la pasantía');
+
+    const data = await res.json();
+
+    setPasantias(prev => [...prev, data]); // data tiene el id asignado por json-server
     setNuevaPasantia({ empresa: '', alumno: '', puesto: '', fechaInicio: '', fechaFin: '' });
     setError('');
+    setMostrarModal(false);
+
+  } catch (error) {
+    console.error(error);
+    setError('No se pudo registrar la pasantía. Intente nuevamente.');
+  }
   };
 
-  const cancelarPasantia = (index) => {
-    const nuevas = [...pasantias];
-    nuevas[index].estado = 'cancelada';
-    setPasantias(nuevas);
+  const finalizarPasantia = async (id) => {
+  const pasantia = pasantias.find(p => p.id === id);
+  if (!pasantia) {
+    console.error('No se encontró la pasantía para finalizar');
+    setError('No se encontró la pasantía para finalizar');
+    return;
+  }
+
+  const actualizada = { ...pasantia, estado: 'finalizada' };
+
+  try {
+    const res = await fetch(`http://localhost:3001/pasantias/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(actualizada)
+    });
+
+    if (!res.ok) throw new Error('Error al finalizar la pasantía');
+
+    const data = await res.json();
+
+    setPasantias(prev => prev.map(p => p.id === id ? data : p));
+    setError('');
+
+  } catch (error) {
+    console.error(error);
+    setError('No se pudo finalizar la pasantía. Intente nuevamente.');
+  }
   };
 
-  const emitirInforme = (index) => {
-    setModalInforme(index);
+  const cancelarPasantia = async (id) => {
+  const pasantia = pasantias.find(p => p.id === id);
+  if (!pasantia) {
+    console.error('No se encontró la pasantía para cancelar');
+    setError('No se encontró la pasantía para cancelar');
+    return;
+  }
+
+  const actualizada = { ...pasantia, estado: 'cancelada' };
+
+  try {
+    const res = await fetch(`http://localhost:3001/pasantias/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(actualizada)
+    });
+
+    if (!res.ok) throw new Error('Error al cancelar la pasantía');
+
+    const data = await res.json();
+
+    setPasantias(prev => prev.map(p => p.id === id ? data : p));
+    setError('');
+
+  } catch (error) {
+    console.error(error);
+    setError('No se pudo cancelar la pasantía. Intente nuevamente.');
+  }
   };
 
-  const guardarInforme = (descripcion) => {
-    const p = pasantias[modalInforme];
-    setInformes([...informes, { ...p, descripcion }]);
-    setModalInforme(null);
+  const confirmarAccion = (pasantia, accion) => {
+  setPasantiaAConfirmar(pasantia);
+  setAccionConfirmar(accion);
+  setMostrarConfirmacion(true);
   };
 
-  const forzarFinalizacion = (index) => {
-    const nuevas = [...pasantias];
-    const ayer = new Date();
-    ayer.setDate(ayer.getDate() - 1);
-    nuevas[index].fechaFin = ayer.toISOString().split('T')[0];
-    setPasantias(nuevas);
+  const ejecutarAccionConfirmada = async () => {
+  if (!pasantiaAConfirmar) return;
+
+  if (accionConfirmar === 'cancelar') {
+    await cancelarPasantia(pasantiaAConfirmar.id);
+  } else if (accionConfirmar === 'finalizar') {
+    await finalizarPasantia(pasantiaAConfirmar.id);
+  }
+
+  setMostrarConfirmacion(false);
+  setPasantiaAConfirmar(null);
+  setAccionConfirmar('');
   };
+
 
   const hoy = new Date();
   const activas = pasantias.filter(p => p.estado === 'activa' && new Date(p.fechaFin) > hoy);
-  const finalizadas = pasantias.filter(p => p.estado === 'activa' && new Date(p.fechaFin) <= hoy);
+  const finalizadas = pasantias.filter(p => p.estado === 'finalizada');
   const canceladas = pasantias.filter(p => p.estado === 'cancelada');
 
   return (
     <div className="page-container">
       <h1>Pasantías</h1>
-      <form onSubmit={registrarPasantia}>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+      <button onClick={() => setMostrarModal(true)}>Registrar Pasantía</button>
 
-        <label>Empresa:</label>
-        <select name="empresa" value={nuevaPasantia.empresa} onChange={handleChange} required>
-          <option value="">Seleccionar</option>
-          {empresas.map((e, i) => (
-            <option key={i} value={e.nombre}>{e.nombre}</option>
-          ))}
-        </select>
+      {mostrarModal && (
+        <div className="modal modal-pequeno">
+          <form onSubmit={registrarPasantia}>
+            <h2>Registrar Pasantía</h2>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
 
-        <label>Alumno:</label>
-        <select name="alumno" value={nuevaPasantia.alumno} onChange={handleChange} required>
-          <option value="">Seleccionar</option>
-          {alumnos.map((a, i) => (
-            <option key={i} value={a.nombre}>{a.nombre}</option>
-          ))}
-        </select>
+            <label>Empresa:</label>
+            <select name="empresa" value={nuevaPasantia.empresa} onChange={handleChange} required>
+              <option value="">Seleccionar</option>
+              {empresas.map((e, i) => (
+                <option key={i} value={e.nombre}>{e.nombre}</option>
+              ))}
+            </select>
 
-        <label>Puesto:</label>
-        <p style={{ marginBottom: '1rem' }}>{nuevaPasantia.puesto || '—'}</p>
+            <label>Alumno:</label>
+            <select name="alumno" value={nuevaPasantia.alumno} onChange={handleChange} required>
+              <option value="">Seleccionar</option>
+              {alumnos.map((a, i) => (
+                <option key={i} value={a.nombre_apellido}>{a.nombre_apellido}</option>
+              ))}
+            </select>
 
-        <label>Fecha de Inicio:</label>
-        <input type="date" name="fechaInicio" value={nuevaPasantia.fechaInicio} onChange={handleChange} required />
+            <label>Puesto:</label>
+            <p>{nuevaPasantia.puesto || '—'}</p>
 
-        <label>Fecha de Finalización:</label>
-        <input type="date" name="fechaFin" value={nuevaPasantia.fechaFin} readOnly />
+            <label>Fecha de Inicio:</label>
+            <input type="date" name="fechaInicio" value={nuevaPasantia.fechaInicio} onChange={handleChange} required />
 
-        <button type="submit">Registrar Pasantía</button>
-      </form>
+            <label>Fecha de Finalización:</label>
+            <input type="date" name="fechaFin" value={nuevaPasantia.fechaFin} readOnly />
+
+            <button type="submit">Registrar</button>
+            <button type="button" onClick={() => setMostrarModal(false)}>Cancelar</button>
+          </form>
+        </div>
+      )}
 
       <h2>Activas</h2>
-      {activas.map((p, i) => (
-        <div key={i} className="tarjeta">
+      {activas.map((p) => (
+        <div key={p.id} className="tarjeta">
           <div>
             <h3>{p.puesto}</h3>
             <p>{p.empresa}</p>
@@ -175,17 +253,15 @@ const Pasantias = () => {
           </div>
           <div>
             <p>{p.fechaInicio} - {p.fechaFin}</p>
-            <button onClick={() => cancelarPasantia(i)}>Cancelar</button>
-            {process.env.NODE_ENV === 'development' && (
-              <button onClick={() => forzarFinalizacion(i)}>Forzar Finalización</button>
-            )}
+            <button onClick={() => confirmarAccion(p, 'cancelar')}>Cancelar</button>
+            <button onClick={() => confirmarAccion(p, 'finalizar')}>Finalizar</button>
           </div>
         </div>
       ))}
 
       <h2>Finalizadas</h2>
-      {finalizadas.map((p, i) => (
-        <div key={i} className="tarjeta">
+      {finalizadas.map((p) => (
+        <div key={p.id} className="tarjeta">
           <div>
             <h3>{p.puesto}</h3>
             <p>{p.empresa}</p>
@@ -193,18 +269,15 @@ const Pasantias = () => {
           </div>
           <div>
             <p>{p.fechaInicio} - {p.fechaFin}</p>
-            {informes.some(inf => inf.empresa === p.empresa && inf.alumno === p.alumno) ? (
-              <p><strong>Informe Emitido</strong></p>
-            ) : (
-              <button onClick={() => emitirInforme(i)}>Emitir Informe</button>
-            )}
+            <button disabled>Emitir Informe</button>
           </div>
         </div>
       ))}
+
 
       <h2>Canceladas</h2>
-      {canceladas.map((p, i) => (
-        <div key={i} className="tarjeta">
+      {canceladas.map((p) => (
+        <div key={p.id} className="tarjeta">
           <div>
             <h3>{p.puesto}</h3>
             <p>{p.empresa}</p>
@@ -216,15 +289,17 @@ const Pasantias = () => {
         </div>
       ))}
 
-      {modalInforme !== null && (
+      {mostrarConfirmacion && (
         <div className="modal">
-          <h3>Informe de Pasantía</h3>
-          <p><strong>Puesto:</strong> {pasantias[modalInforme].puesto}</p>
-          <p><strong>Empresa:</strong> {pasantias[modalInforme].empresa}</p>
-          <p><strong>Alumno:</strong> {pasantias[modalInforme].alumno}</p>
-          <p><strong>Inicio:</strong> {pasantias[modalInforme].fechaInicio}</p>
-          <p><strong>Finalización:</strong> {pasantias[modalInforme].fechaFin}</p>
-          <textarea placeholder="Descripción de la pasantía..." onBlur={(e) => guardarInforme(e.target.value)} />
+          <div className="modal-content">
+            <h3>
+              ¿Está seguro que desea {accionConfirmar === 'cancelar' ? 'cancelar' : 'finalizar'} esta pasantía?
+            </h3>
+            <div className="modal-footer">
+              <button onClick={ejecutarAccionConfirmada}>Sí, confirmar</button>
+              <button onClick={() => setMostrarConfirmacion(false)}>Cancelar</button>
+            </div>
+          </div>
         </div>
       )}
     </div>

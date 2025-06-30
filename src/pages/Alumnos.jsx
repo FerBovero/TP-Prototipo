@@ -36,25 +36,54 @@ const Alumnos = () => {
     );
   };
 
-  const registrarAlumno = (e) => {
-    e.preventDefault();
-    if (!validarDatos()) {
-      setError('Por favor, ingrese datos válidos en todos los campos.');
-      return;
+const registrarAlumno = async (e) => {
+  e.preventDefault();
+  if (!validarDatos()) {
+    setError('Por favor, ingrese datos válidos en todos los campos.');
+    return;
+  }
+
+  try {
+    const response = await fetch('http://localhost:3001/alumnos', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(nuevoAlumno)
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al guardar el alumno');
     }
 
-    addAlumno(nuevoAlumno); // Usamos la función del contexto para agregar el alumno
-    localStorage.setItem('alumnos', JSON.stringify([...alumnos, nuevoAlumno]));
+    const alumnoGuardado = await response.json();
+    addAlumno(alumnoGuardado); // Añadimos el alumno al estado usando el contexto
     setNuevoAlumno({
       nombre: '', email: '', dni: '', telefono: '', direccion: '', legajo: '', carrera: ''
     });
     setMostrarModal(false);
     setError('');
-  };
+  } catch (err) {
+    console.error(err);
+    setError('Hubo un problema al registrar el alumno.');
+  }
+};
 
-  const eliminarAlumno = (index) => {
-    removeAlumno(index); // Usamos la función del contexto para eliminar el alumno
-  };
+const [idAEliminar, setIdAEliminar] = useState(null);
+
+const confirmarEliminar = (id) => {
+  setIdAEliminar(id);
+};
+
+const cancelarEliminacion = () => {
+  setIdAEliminar(null);
+};
+
+const confirmarEliminacion = () => {
+  removeAlumno(idAEliminar);
+  setIdAEliminar(null);
+};
+
 
   return (
     <div className="page-container">
@@ -96,17 +125,33 @@ const Alumnos = () => {
       )}
 
       <div className="lista-alumnos">
-        {alumnos.map((alumno, index) => (
-          <div key={index} className="tarjeta-alumno">
-            <img src="https://via.placeholder.com/80" alt="Alumno" />
+        {alumnos.map((alumno) => (
+          <div key={alumno.id || alumno.legajo} className="tarjeta-alumno">
             <div className="info-alumno">
-              <h3>{alumno.nombre}</h3>
-              <p>{alumno.carrera}</p>
+              <h3>{alumno.nombre_apellido}</h3>
+              <p><strong>Legajo:</strong> {alumno.legajo}</p>
+              <p><strong>Carrera:</strong> {alumno.carrera}</p>
             </div>
-            <button onClick={() => eliminarAlumno(index)}>Eliminar</button>
+            <div className="acciones-alumno">
+              <button onClick={() => confirmarEliminar(alumno.id || alumno.legajo)}>
+                Eliminar
+              </button>
+            </div>
           </div>
         ))}
       </div>
+      {idAEliminar !== null && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>¿Estás seguro que deseas eliminar este alumno?</h3>
+            <p>Esta acción no se puede deshacer.</p>
+            <div className="modal-footer">
+              <button onClick={confirmarEliminacion}>Sí, eliminar</button>
+              <button onClick={cancelarEliminacion}>Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

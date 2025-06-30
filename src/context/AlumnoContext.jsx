@@ -1,20 +1,49 @@
-import React, { createContext, useState, useContext } from 'react';
+// context/AlumnoContext.jsx
+import React, { createContext, useState, useEffect, useContext } from 'react';
 
-// Creamos el contexto de los alumnos
 export const AlumnoContext = createContext();
 
-// Componente Proveedor del Contexto
 export const AlumnoProvider = ({ children }) => {
   const [alumnos, setAlumnos] = useState([]);
 
-  // Función para agregar un alumno
-  const addAlumno = (alumno) => {
-    setAlumnos([...alumnos, alumno]);
+  // Cargar alumnos desde la API al iniciar
+  useEffect(() => {
+    fetch('http://localhost:3001/alumnos')
+      .then(res => res.json())
+      .then(data => setAlumnos(data))
+      .catch(err => console.error('Error al cargar alumnos:', err));
+  }, []);
+
+  // Agregar un nuevo alumno a la API y actualizar estado
+  const addAlumno = async (alumno) => {
+    try {
+      const res = await fetch('http://localhost:3001/alumnos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(alumno)
+      });
+
+      if (!res.ok) throw new Error('Error al guardar alumno');
+
+      const data = await res.json();
+      setAlumnos(prev => [...prev, data]);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  // Función para eliminar un alumno
-  const removeAlumno = (index) => {
-    setAlumnos(alumnos.filter((_, i) => i !== index));
+  // Eliminar un alumno por ID desde la API
+  const removeAlumno = async (id) => {
+    try {
+      await fetch(`http://localhost:3001/alumnos/${id}`, {
+        method: 'DELETE'
+      });
+      setAlumnos(prev => prev.filter(alumno => alumno.id !== id));
+    } catch (error) {
+      console.error('Error al eliminar alumno:', error);
+    }
   };
 
   return (
@@ -24,7 +53,5 @@ export const AlumnoProvider = ({ children }) => {
   );
 };
 
-// Custom Hook para acceder al contexto
-export const useAlumnoContext = () => {
-  return useContext(AlumnoContext);
-};
+export const useAlumnoContext = () => useContext(AlumnoContext);
+
