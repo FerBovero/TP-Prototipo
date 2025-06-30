@@ -44,7 +44,7 @@ const registrarAlumno = async (e) => {
   }
 
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/alumnos`, {
+    const response = await fetch('https://tp-prototipo-production.up.railway.app/alumnos', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

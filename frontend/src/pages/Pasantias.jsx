@@ -18,15 +18,15 @@ const Pasantias = () => {
   });
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/empresas`)
+    fetch('https://tp-prototipo-production.up.railway.app/empresas')
       .then(res => res.json())
       .then(data => setEmpresas(data));
 
-    fetch(`${import.meta.env.VITE_API_URL}/alumnos`)
+    fetch('https://tp-prototipo-production.up.railway.app/alumnos')
       .then(res => res.json())
       .then(data => setAlumnos(data));
 
-    fetch(`${import.meta.env.VITE_API_URL}/pasantias`)
+    fetch('https://tp-prototipo-production.up.railway.app/pasantias')
       .then(res => res.json())
       .then(data => setPasantias(data));
   }, []);
@@ -94,7 +94,7 @@ const Pasantias = () => {
   const nueva = { ...nuevaPasantia, estado: 'activa' };
 
   try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/pasantias`, {
+    const res = await fetch('https://tp-prototipo-production.up.railway.app/pasantias', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(nueva)
@@ -126,7 +126,7 @@ const Pasantias = () => {
   const actualizada = { ...pasantia, estado: 'finalizada' };
 
   try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/pasantias/${id}`, {
+    const res = await fetch(`https://tp-prototipo-production.up.railway.app/pasantias/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(actualizada)
@@ -156,7 +156,7 @@ const Pasantias = () => {
   const actualizada = { ...pasantia, estado: 'cancelada' };
 
   try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/pasantias/${id}`, {
+    const res = await fetch(`https://tp-prototipo-production.up.railway.app/pasantias/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(actualizada)
