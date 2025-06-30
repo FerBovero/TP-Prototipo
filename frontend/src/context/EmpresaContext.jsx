@@ -9,7 +9,7 @@ export const EmpresaProvider = ({ children }) => {
   useEffect(() => {
     const fetchEmpresas = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}empresas`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/empresas`);
         const data = await response.json();
         setEmpresas(data);
       } catch (error) {
