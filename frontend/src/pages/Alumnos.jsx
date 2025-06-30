@@ -44,7 +44,7 @@ const registrarAlumno = async (e) => {
   }
 
   try {
-    const response = await fetch('http://localhost:3001/alumnos', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/alumnos`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

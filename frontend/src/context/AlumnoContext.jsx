@@ -8,7 +8,7 @@ export const AlumnoProvider = ({ children }) => {
 
   // Cargar alumnos desde la API al iniciar
   useEffect(() => {
-    fetch('http://localhost:3001/alumnos')
+    fetch(`${import.meta.env.VITE_API_URL}/alumnos`)
       .then(res => res.json())
       .then(data => setAlumnos(data))
       .catch(err => console.error('Error al cargar alumnos:', err));
@@ -17,7 +17,7 @@ export const AlumnoProvider = ({ children }) => {
   // Agregar un nuevo alumno a la API y actualizar estado
   const addAlumno = async (alumno) => {
     try {
-      const res = await fetch('http://localhost:3001/alumnos', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/alumnos`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -37,7 +37,7 @@ export const AlumnoProvider = ({ children }) => {
   // Eliminar un alumno por ID desde la API
   const removeAlumno = async (id) => {
     try {
-      await fetch(`http://localhost:3001/alumnos/${id}`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/alumnos/${id}`, {
         method: 'DELETE'
       });
       setAlumnos(prev => prev.filter(alumno => alumno.id !== id));

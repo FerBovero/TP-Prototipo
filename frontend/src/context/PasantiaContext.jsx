@@ -20,15 +20,15 @@ export const PasantiaProvider = ({ children }) => {
 
   // Carga inicial de datos
   useEffect(() => {
-    fetch('http://localhost:3001/empresas')
+    fetch(`${import.meta.env.VITE_API_URL}/empresas`)
       .then(res => res.json())
       .then(data => setEmpresas(data));
 
-    fetch('http://localhost:3001/alumnos')
+    fetch(`${import.meta.env.VITE_API_URL}/alumnos`)
       .then(res => res.json())
       .then(data => setAlumnos(data));
 
-    fetch('http://localhost:3001/pasantias')
+    fetch(`${import.meta.env.VITE_API_URL}/pasantias`)
       .then(res => res.json())
       .then(data => setPasantias(data));
   }, []);
@@ -107,7 +107,7 @@ export const PasantiaProvider = ({ children }) => {
     const nueva = { ...nuevaPasantia, estado: 'activa' };
 
     try {
-      const res = await fetch('http://localhost:3001/pasantias', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/pasantias`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(nueva)
@@ -130,7 +130,7 @@ export const PasantiaProvider = ({ children }) => {
     const actualizada = { ...pasantia, estado: 'cancelada' };
 
     try {
-      await fetch(`http://localhost:3001/pasantias/${id}`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/pasantias/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(actualizada)
