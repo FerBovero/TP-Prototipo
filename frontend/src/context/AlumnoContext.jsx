@@ -37,7 +37,7 @@ export const AlumnoProvider = ({ children }) => {
   // Eliminar un alumno por ID desde la API
   const removeAlumno = async (id) => {
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}alumnos/${id}`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/alumnos/${id}`, {
         method: 'DELETE'
       });
       setAlumnos(prev => prev.filter(alumno => alumno.id !== id));

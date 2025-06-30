@@ -44,7 +44,7 @@ const registrarAlumno = async (e) => {
   }
 
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}alumnos`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/alumnos`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

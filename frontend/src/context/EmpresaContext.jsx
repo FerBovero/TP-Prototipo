@@ -28,7 +28,7 @@ export const EmpresaProvider = ({ children }) => {
   // Eliminar empresa por ID
   const removeEmpresa = async (id) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}empresas/${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/empresas/${id}`, {
         method: 'DELETE'
       });
 
