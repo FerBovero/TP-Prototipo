@@ -15,30 +15,7 @@ import { AlumnoProvider } from "./context/AlumnoContext";  // Asumí que tienes 
 
 function App() {
   const [autenticado, setAutenticado] = useState(false);
-
-    const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkDevice = () => {
-      const width = window.innerWidth;
-      const isMobileDevice = /Mobi|Android/i.test(navigator.userAgent) || width < 768;
-      setIsMobile(isMobileDevice);
-    };
-    checkDevice();
-    window.addEventListener("resize", checkDevice);
-    return () => window.removeEventListener("resize", checkDevice);
-  }, []);
-
-  if (isMobile) {
-    return (
-      <div style={{ padding: "2rem", textAlign: "center" }}>
-        <h2>⚠️ Acceso no permitido desde dispositivos móviles</h2>
-        <p>Esta aplicación solo está disponible para computadoras de escritorio.</p>
-      </div>
-    );
-  }
-
-
+  
   return (
     <>
       {!autenticado ? (
