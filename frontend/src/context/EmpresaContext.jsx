@@ -9,7 +9,7 @@ export const EmpresaProvider = ({ children }) => {
   useEffect(() => {
     const fetchEmpresas = async () => {
       try {
-        const response = await fetch('https://tp-prototipo-production.up.railway.ap/empresas');
+        const response = await fetch('https://tp-prototipo.onrender.com/empresas');
         const data = await response.json();
         setEmpresas(data);
       } catch (error) {
@@ -28,7 +28,7 @@ export const EmpresaProvider = ({ children }) => {
   // Eliminar empresa por ID
   const removeEmpresa = async (id) => {
     try {
-      const response = await fetch(`https://tp-prototipo-production.up.railway.app/empresas/${id}`, {
+      const response = await fetch(`https://tp-prototipo.onrender.com/empresas/${id}`, {
         method: 'DELETE'
       });
 

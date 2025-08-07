@@ -20,15 +20,15 @@ export const PasantiaProvider = ({ children }) => {
 
   // Carga inicial de datos
   useEffect(() => {
-    fetch('https://tp-prototipo-production.up.railway.app/empresas')
+    fetch('https://tp-prototipo.onrender.com/empresas')
       .then(res => res.json())
       .then(data => setEmpresas(data));
 
-    fetch('https://tp-prototipo-production.up.railway.app/alumnos')
+    fetch('https://tp-prototipo.onrender.com/alumnos')
       .then(res => res.json())
       .then(data => setAlumnos(data));
 
-    fetch('https://tp-prototipo-production.up.railway.app/pasantias')
+    fetch('https://tp-prototipo.onrender.com/pasantias')
       .then(res => res.json())
       .then(data => setPasantias(data));
   }, []);
@@ -107,7 +107,7 @@ export const PasantiaProvider = ({ children }) => {
     const nueva = { ...nuevaPasantia, estado: 'activa' };
 
     try {
-      const res = await fetch('https://tp-prototipo-production.up.railway.app/pasantias', {
+      const res = await fetch('https://tp-prototipo.onrender.com/pasantias', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(nueva)
@@ -130,7 +130,7 @@ export const PasantiaProvider = ({ children }) => {
     const actualizada = { ...pasantia, estado: 'cancelada' };
 
     try {
-      await fetch(`https://tp-prototipo-production.up.railway.app/pasantias/${id}`, {
+      await fetch(`https://tp-prototipo.onrender.com/pasantias/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(actualizada)
