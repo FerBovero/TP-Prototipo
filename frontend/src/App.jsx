@@ -15,29 +15,36 @@ import { AlumnoProvider } from "./context/AlumnoContext";  // Asumí que tienes 
 
 function App() {
   const [autenticado, setAutenticado] = useState(false);
-  
+
   return (
     <>
-      {!autenticado ? (
-        <Login onLoginSuccess={() => setAutenticado(true)} />
-      ) : (
-        <>
-          <Navbar />
-          {/* Envuelve las rutas con los proveedores correspondientes */}
-          <PasantiaProvider>
-            <EmpresaProvider>
-              <AlumnoProvider>
-                <Routes>
-                  <Route path="/" element={<Inicio />} />
-                  <Route path="/alumnos" element={<Alumnos />} />
-                  <Route path="/empresas" element={<Empresas />} />
-                  <Route path="/pasantias" element={<Pasantias />} />
-                </Routes>
-              </AlumnoProvider>
-            </EmpresaProvider>
-          </PasantiaProvider>
-        </>
-      )}
+      {/* Mensaje solo visible en dispositivos móviles */}
+      <div className="mobile-warning">
+        Esta aplicación solo está disponible desde una computadora de escritorio.
+      </div>
+
+      {/* Contenido visible solo en escritorio */}
+      <div className="app-content">
+        {!autenticado ? (
+          <Login onLoginSuccess={() => setAutenticado(true)} />
+        ) : (
+          <>
+            <Navbar />
+            <PasantiaProvider>
+              <EmpresaProvider>
+                <AlumnoProvider>
+                  <Routes>
+                    <Route path="/" element={<Inicio />} />
+                    <Route path="/alumnos" element={<Alumnos />} />
+                    <Route path="/empresas" element={<Empresas />} />
+                    <Route path="/pasantias" element={<Pasantias />} />
+                  </Routes>
+                </AlumnoProvider>
+              </EmpresaProvider>
+            </PasantiaProvider>
+          </>
+        )}
+      </div>
     </>
   );
 }
