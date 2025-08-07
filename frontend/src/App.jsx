@@ -1,5 +1,5 @@
 // src/App.jsx
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
@@ -18,27 +18,29 @@ function App() {
   const [esMovil, setEsMovil] = useState(false);
 
   useEffect(() => {
-    const verificarDispositivo = () => {
-      const anchoPantalla = window.innerWidth;
-      setEsMovil(anchoPantalla < 768); // Lo podés ajustar si querés
-    };
-
-    verificarDispositivo();
-
-    window.addEventListener("resize", verificarDispositivo);
-    return () => window.removeEventListener("resize", verificarDispositivo);
+    const anchoPantalla = window.innerWidth;
+    const esUserAgenteMovil = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (anchoPantalla < 768 || esUserAgenteMovil) {
+      setEsMovil(true);
+    }
   }, []);
 
   if (esMovil) {
     return (
-      <div className="mobile-warning">
+      <div
+        style={{
+          textAlign: "center",
+          padding: "3rem",
+          fontSize: "1.2rem"
+        }}
+      >
         Esta aplicación solo está disponible desde una computadora de escritorio.
       </div>
     );
   }
 
   return (
-    <div className="app-content">
+    <>
       {!autenticado ? (
         <Login onLoginSuccess={() => setAutenticado(true)} />
       ) : (
@@ -58,7 +60,7 @@ function App() {
           </PasantiaProvider>
         </>
       )}
-    </div>
+    </>
   );
 }
 
